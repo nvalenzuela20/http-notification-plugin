@@ -6,12 +6,16 @@
 
     <groupId>org.test.rundeck</groupId>
     <artifactId>rundeck-http-notification-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>3.2.6-20200430</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
-        <rundeckVersion>2.7.1</rundeckVersion>
+        <rundeckVersion>3.2.6-20200427</rundeckVersion>
+        <rundeckPluginVersion>1.2</rundeckPluginVersion>
+        <httpClientVersion>4.5.8</httpClientVersion>
+        <junitVersion>4.8.1</junitVersion>
+        <powermockVersion>1.6.4</powermockVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <outputDirectory>${project.build.directory}</outputDirectory>
     </properties>
@@ -23,88 +27,69 @@
             <version>${rundeckVersion}</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpClientVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junitVersion}</version>
+            <scope>test</scope>
+        </dependency>
+       <dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-module-junit4</artifactId>
+		    <version>${powermockVersion}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-api-mockito</artifactId>
+		    <version>${powermockVersion}</version>
+		    <scope>test</scope>
+		</dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <!-- Allows easy changing of the output directory when debugging -->
-                    <outputDirectory>${outputDirectory}</outputDirectory>
-                    <archive>
-                        <!-- Setup the manifest entries for Rundeck -->
-                        <manifestEntries>
-                            <Rundeck-Plugin-Version>1.1</Rundeck-Plugin-Version>
-                            <Rundeck-Plugin-Archive>true</Rundeck-Plugin-Archive>
-                            <Rundeck-Plugin-ClassNames>
-                                edu.ohio.ais.rundeck.HttpWorkflowStepPlugin
-                            </Rundeck-Plugin-ClassNames>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <!-- Use the Maven Shade plugin to embed all dependencies in the Jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
-                            </transformers>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                            <excludeTransitive>false</excludeTransitive>
+                            <excludeScope>provided</excludeScope>
+                            <includeScope>runtime</includeScope>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <archive>
+                        <manifest>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                        <manifestEntries>
+                            <Rundeck-Plugin-Classnames>com.dtolabs.rundeck.plugin.http_notifications.HttpNotificationsPlugin</Rundeck-Plugin-Classnames>
+                            <Rundeck-Plugin-File-Version>${project.version}</Rundeck-Plugin-File-Version>
+                            <Rundeck-Plugin-Version>${rundeckPluginVersion}</Rundeck-Plugin-Version>
+                            <Rundeck-Plugin-Archive>true</Rundeck-Plugin-Archive>
+                            <Rundeck-Plugin-libs>lib/commons-codec-1.10.jar lib/commons-logging-1.2.jar lib/httpclient-4.5.8.jar lib/httpcore-4.4.11.jar</Rundeck-Plugin-libs>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

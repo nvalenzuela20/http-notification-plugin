@@ -1,0 +1,85 @@
+version = '3.2.5-20200403'
+defaultTasks 'clean','build'
+apply plugin: 'java'
+apply plugin: 'idea'
+sourceCompatibility = 1.8
+ext.rundeckPluginVersion= '1.2'
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile([group: 'org.rundeck', name: 'rundeck-core', version: version,ext:'jar'])
+    compile([group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'])
+
+    testCompile 'junit:junit:4.8.1', 'org.mockito:mockito-all:1.10.19'
+
+    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+    testCompile "com.squareup.retrofit2:retrofit-mock:2.6.1"
+    testCompile "cglib:cglib-nodep:2.2.2"
+
+}
+
+ext.pluginClassNames='com.dtolabs.rundeck.plugin.http_notifications.HttpNotificationsPlugin'
+jar {
+    manifest {
+        attributes 'Rundeck-Plugin-Classnames': pluginClassNames
+        attributes 'Rundeck-Plugin-File-Version': version
+        attributes 'Rundeck-Plugin-Version': rundeckPluginVersion, 'Rundeck-Plugin-Archive': 'true'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.0'
+}
+
+
+
+apply plugin: 'maven'
+task createPom << {
+    pom {
+        project {
+            artifactId 'rundeck-http-notification-plugin'
+            groupId "com.dtolabs.rundeck"
+            inceptionYear '2020'
+            packaging 'jar'
+            version version
+            name "RunDeck Example Notification Plugin"
+            url 'http://rundeck.org'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            parent{
+                groupId 'com.dtolabs.rundeck'
+                artifactId "rundeck-bundled-plugins"
+                version(version)
+            }
+            build{
+                plugins{
+                    plugin{
+                        groupId 'org.apache.maven.plugins'
+                        artifactId 'maven-jar-plugin'
+                        version '2.3.2'
+                        configuration{
+                            archive{
+                              manifestEntries{
+                                'Rundeck-Plugin-Classnames'(pluginClassNames)
+                                'Rundeck-Plugin-File-Version' version
+                                'Rundeck-Plugin-Version' rundeckPluginVersion
+                                'Rundeck-Plugin-Archive' 'true'
+                              }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }.writeTo("pom.xml")
+}

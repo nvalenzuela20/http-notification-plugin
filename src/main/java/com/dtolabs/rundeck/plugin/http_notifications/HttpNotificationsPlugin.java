@@ -1,54 +1,58 @@
 package com.dtolabs.rundeck.plugin.http_notifications;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
+import com.dtolabs.rundeck.plugins.descriptions.SelectValues;
 import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 
 @Plugin(service="Notification",name="http-notification")
 @PluginDescription(title="Notification Plugin", description="An plugin for Rundeck Notifications.")
 public class HttpNotificationsPlugin implements NotificationPlugin{
 	
-	public static final Logger logger = Logger.getLogger(HttpNotificationsPlugin.class);
-	
 	private static final String METHOD_POST = "POST";
 	private static final String METHOD_PUT = "PUT";
 	private static final String METHOD_DELETE = "DELETE";
 	private static final String METHOD_GET = "GET";
 	private static final int HTTP_OK = 200;
-	private static final String EXP_REG_VALID_URL = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\?=.-]*)*\\/?$";
-	private static final int  READ_TIME_OUT = 60000;
+	private static final String EXP_REG_VALID_URL = "^(http?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\?=.-]*)*\\/?$";
+    private static final int REQUEST_TIME_OUT = 60000;
+	private static final int SOCKET_TIME_OUT = 60000;
 	private static final int CONNECT_TIME_OUT = 60000;
 	
 
     @PluginProperty(name = "urlInput",title = "url",description = "Complete URL to which send the notification. example: http://machine1/notification")
     private String urlInput;
     
-    @PluginProperty(name = "method",title = "http method",description = "The http method that should be used. Options: POST, PUT, GET, DELETE")
+    @PluginProperty(name = "method",title = "http method",description = "The http method that should be used.")
+    @SelectValues(freeSelect = false, values = {"POST", "PUT", "GET", "DELETE"})
     private String method;
-    
-    @PluginProperty(name = "body",title = "http body",description = "(optional) Valid for POST or PUT methods. Content to be sent as body.")
+
+    @PluginProperty(name = "body",title = "http body",description = "(optional) Content to be sent as body.")
     private String body;
     
-    @PluginProperty(name = "contentType",title = "content type",description = "(optional) Valid for POST or PUT methods. Indicates the content type of the body..")
+    @PluginProperty(name = "contentType",title = "content type",description = "(optional) Indicates the content type of the body..")
+    @SelectValues(freeSelect = false, values = {"JSON", "XML"})
     private String contentType;
+
+    @PluginProperty(name = "debugFlg",title = "Activate log",description = "If you want to see the logs, please check the input")
+    private boolean debugFlg;
 
     public HttpNotificationsPlugin(){
 
@@ -63,14 +67,16 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
      * @return the flag with the answer successful or not  
      */
     public boolean postNotification(String trigger, Map executionData, Map config) {
-    	
-    	logger.debug("Calling postNotification");
+
+        if(debugFlg)
+    	    System.out.println("Calling postNotification");
     	
     	if(urlInput != null && (!urlInput.toUpperCase().startsWith("HTTP://", 0) || urlInput.toUpperCase().startsWith("HTTPS://"))) {
     		urlInput = "https://" + urlInput;
     	}
-    	
-    	logger.debug("getting the information from the URL: " + urlInput);
+
+        if(debugFlg)
+            System.out.println("getting the information from the URL: " + urlInput);
     	
     	if(METHOD_POST.equals(method) || METHOD_PUT.equals(method)) {
         	return callPullorPost();
@@ -92,50 +98,75 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
      * @return the flag with the answer successful or not
      */    
     public boolean callGetOrDelete(){
-    	logger.debug("Calling callGetOrDelete");
+        if(debugFlg)
+            System.out.println("Calling callGetOrDelete");
+
         try{
-        	
+            DefaultHttpClient httpClient = new DefaultHttpClient();
         	Pattern pat = Pattern.compile(EXP_REG_VALID_URL);
         	Matcher mat = pat.matcher(urlInput);
         	
         	if (!mat.matches()) {
-        		logger.error("URL " + urlInput + " is not is valid");
+        		if(debugFlg)
+        		    System.out.println("URL " + urlInput + " is not is valid");
         		return Boolean.FALSE;
             } 
         	        	
-            URL url = new URL(urlInput);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod(method);
-            conn.setConnectTimeout(CONNECT_TIME_OUT);
-            conn.setReadTimeout(READ_TIME_OUT);
-            
-            conn.connect();
-                   
-            if( HTTP_OK == conn.getResponseCode() ) {
-            	return Boolean.TRUE;
+            HttpGet getRequest = new HttpGet(urlInput);
+
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectionRequestTimeout(REQUEST_TIME_OUT)
+                    .setConnectTimeout(CONNECT_TIME_OUT)
+                    .setSocketTimeout(SOCKET_TIME_OUT)
+                    .build();
+
+            getRequest.setConfig(requestConfig);
+
+            getRequest.addHeader("content-type", getContentType(contentType));
+
+            HttpResponse response = httpClient.execute(getRequest);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if( HTTP_OK == statusCode ) {
+                return Boolean.TRUE;
             } else {
-            	return Boolean.FALSE;
+                return Boolean.FALSE;
             }
-            
 
         }catch (UnknownHostException ue){
-        	logger.error("the host does not exist " + urlInput);
+            if(debugFlg) {
+                System.out.println("ERROR: the host does not exist " + urlInput );
+                System.out.println("ERROR MESSAGE: " + ue.getMessage());
+            }
+
             return Boolean.FALSE;
             
         }catch ( MalformedURLException  me){
-        	logger.error("Error ", me);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + me.getMessage());
+            }
             return Boolean.FALSE;
         
         } catch (ProtocolException pe) {
-        	logger.error("Efdrror ", pe);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + pe.getMessage());
+            }
+
             return Boolean.FALSE;
         
         } catch (SocketTimeoutException ste) {
-        	logger.error("a TimeOut has occurred when send a notification");
+            if(debugFlg) {
+                System.out.println("a TimeOut has occurred when send a notification" );
+                System.out.println("ERROR MESSAGE: " + ste.getMessage());
+            }
+
             return Boolean.FALSE;
         
         } catch (IOException ioe) {
-			logger.error("Error ", ioe);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + ioe.getMessage());
+            }
+
             return Boolean.FALSE;
 		}
 
@@ -148,70 +179,91 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
      * @return the flag with the answer successful or not
      */
     public boolean callPullorPost(){
-    	logger.debug("Calling callPullorPost");
-        
+        if(debugFlg)
+            System.out.println("Calling callPullorPost");
+
         try{
-        	
-        	Pattern pat = Pattern.compile(EXP_REG_VALID_URL);
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+
+            Pattern pat = Pattern.compile(EXP_REG_VALID_URL);
         	Matcher mat = pat.matcher(urlInput);
         	
         	if (!mat.matches()) {
-        		logger.error("URL " + urlInput + " is not is valid");
+        		if(debugFlg)
+        		    System.out.println("URL " + urlInput + " is not is valid");
         		return Boolean.FALSE;
             }       	
-        	
-	        URL url = new URL(urlInput);
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	        conn.setRequestMethod(method);
-	        conn.setDoOutput(true);
-	        conn.setConnectTimeout(CONNECT_TIME_OUT);
-            conn.setReadTimeout(READ_TIME_OUT);
-	        
-	        byte[] out = body.getBytes(StandardCharsets.UTF_8);
-	        	        conn.setFixedLengthStreamingMode(out.length);
-	        if( contentType != null && !contentType.isEmpty() ) {
-	        	conn.setRequestProperty("Content-Type", contentType);
-	        } else {
-	        	conn.setRequestProperty("Content-Type", "text/plain");
-	        }
-	        conn.connect();
-	        
-	        try (
-	        	
-	        	OutputStream os = conn.getOutputStream();
-			        
-		    ){
-	        	os.write(out);	
-	        	os.close();
-	        }
-	        
-	        if( HTTP_OK == conn.getResponseCode() ) {
+
+            HttpPost postRequest = new HttpPost(urlInput);
+
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectionRequestTimeout(REQUEST_TIME_OUT)
+                    .setConnectTimeout(CONNECT_TIME_OUT)
+                    .setSocketTimeout(SOCKET_TIME_OUT)
+                    .build();
+
+            postRequest.setConfig(requestConfig);
+
+            postRequest.addHeader("content-type", getContentType(contentType));
+
+            postRequest.setEntity(new StringEntity(body));
+
+            HttpResponse response = httpClient.execute(postRequest);
+
+            //verify the valid error code first
+            int statusCode = response.getStatusLine().getStatusCode();
+
+	        if( HTTP_OK == statusCode ) {
             	return Boolean.TRUE;
             } else {
             	return Boolean.FALSE;
             }
         
         }catch (UnknownHostException ue){
-        	logger.error("the host does not exist " + urlInput);
+            if(debugFlg) {
+                System.out.println("ERROR: the host does not exist " + urlInput);
+                System.out.println("ERROR MESSAGE: " + ue.getMessage());
+            }
+
             return Boolean.FALSE;
             
         }catch ( MalformedURLException  me){
-        	logger.error("Error ", me);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + me.getMessage());
+            }
             return Boolean.FALSE;
         
         } catch (ProtocolException pe) {
-        	logger.error("Error ", pe);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + pe.getMessage());
+            }
             return Boolean.FALSE;
         
         } catch (SocketTimeoutException ste) {
-        	logger.error("a TimeOut has occurred when send a notification");
+
+            if(debugFlg) {
+                System.out.println("ERROR: a TimeOut has occurred when send a notification");
+                System.out.println("ERROR MESSAGE: " + ste.getMessage());
+            }
             return Boolean.FALSE;
        
         } catch (IOException ioe) {
-			logger.error("Error ", ioe);
+            if(debugFlg) {
+                System.out.println("ERROR MESSAGE: " + ioe.getMessage());
+            }
             return Boolean.FALSE;
 		}
         
+    }
+
+    private String getContentType(String contentType){
+        if(contentType != null && contentType.equals("JSON")) {
+            return "application/xml";
+        } else if(contentType != null && contentType.equals("JSON")){
+            return "application/xml";
+        } else {
+            return "text/plain";
+        }
     }
         
 
