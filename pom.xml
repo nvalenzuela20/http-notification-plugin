@@ -13,7 +13,7 @@
     <properties>
         <rundeckVersion>3.2.6-20200427</rundeckVersion>
         <rundeckPluginVersion>1.2</rundeckPluginVersion>
-        <httpClientVersion>4.5.8</httpClientVersion>
+        <httpClientVersion>4.5.12</httpClientVersion>
         <junitVersion>4.8.1</junitVersion>
         <powermockVersion>1.6.4</powermockVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

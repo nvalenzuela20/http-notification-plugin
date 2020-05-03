@@ -6,15 +6,16 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
@@ -31,7 +32,6 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 	private static final String METHOD_DELETE = "DELETE";
 	private static final String METHOD_GET = "GET";
 	private static final int HTTP_OK = 200;
-	private static final String EXP_REG_VALID_URL = "^(http?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\?=.-]*)*\\/?$";
     private static final int REQUEST_TIME_OUT = 60000;
 	private static final int SOCKET_TIME_OUT = 60000;
 	private static final int CONNECT_TIME_OUT = 60000;
@@ -69,9 +69,14 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
     public boolean postNotification(String trigger, Map executionData, Map config) {
 
         if(debugFlg)
-    	    System.out.println("Calling postNotification");
+    	    System.out.println("Calling postNotification method............");
     	
-    	if(urlInput != null && (!urlInput.toUpperCase().startsWith("HTTP://", 0) || urlInput.toUpperCase().startsWith("HTTPS://"))) {
+    	if(urlInput == null || urlInput.isEmpty()) {
+    		if(debugFlg)
+        	    System.out.println("the URL is null");
+    		return false;
+        	
+    	} else if(urlInput != null && (!urlInput.toUpperCase().startsWith("HTTP://", 0) || urlInput.toUpperCase().startsWith("HTTPS://"))) {
     		urlInput = "https://" + urlInput;
     	}
 
@@ -85,6 +90,9 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
         	return callGetOrDelete();
         	
         } else {
+        	if(debugFlg)
+        	    System.out.println("Assigning the method GET as default");
+        	
         	method = METHOD_GET;
         	return callGetOrDelete();
         	
@@ -99,26 +107,13 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
      */    
     public boolean callGetOrDelete(){
         if(debugFlg)
-            System.out.println("Calling callGetOrDelete");
+            System.out.println("Calling callGetOrDelete method");
 
         try{
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-        	Pattern pat = Pattern.compile(EXP_REG_VALID_URL);
-        	Matcher mat = pat.matcher(urlInput);
-        	
-        	if (!mat.matches()) {
-        		if(debugFlg)
-        		    System.out.println("URL " + urlInput + " is not is valid");
-        		return Boolean.FALSE;
-            } 
-        	        	
+            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             HttpGet getRequest = new HttpGet(urlInput);
 
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectionRequestTimeout(REQUEST_TIME_OUT)
-                    .setConnectTimeout(CONNECT_TIME_OUT)
-                    .setSocketTimeout(SOCKET_TIME_OUT)
-                    .build();
+            RequestConfig requestConfig = prepareRequestConfig();
 
             getRequest.setConfig(requestConfig);
 
@@ -180,27 +175,14 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
      */
     public boolean callPullorPost(){
         if(debugFlg)
-            System.out.println("Calling callPullorPost");
+            System.out.println("Calling callPullorPost method");
 
         try{
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-
-            Pattern pat = Pattern.compile(EXP_REG_VALID_URL);
-        	Matcher mat = pat.matcher(urlInput);
-        	
-        	if (!mat.matches()) {
-        		if(debugFlg)
-        		    System.out.println("URL " + urlInput + " is not is valid");
-        		return Boolean.FALSE;
-            }       	
+        	CloseableHttpClient httpClient = HttpClients.createDefault();
 
             HttpPost postRequest = new HttpPost(urlInput);
 
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectionRequestTimeout(REQUEST_TIME_OUT)
-                    .setConnectTimeout(CONNECT_TIME_OUT)
-                    .setSocketTimeout(SOCKET_TIME_OUT)
-                    .build();
+            RequestConfig requestConfig = prepareRequestConfig();
 
             postRequest.setConfig(requestConfig);
 
@@ -208,7 +190,7 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 
             postRequest.setEntity(new StringEntity(body));
 
-            HttpResponse response = httpClient.execute(postRequest);
+            CloseableHttpResponse response = httpClient.execute(postRequest);
 
             //verify the valid error code first
             int statusCode = response.getStatusLine().getStatusCode();
@@ -255,6 +237,18 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 		}
         
     }
+
+    /**
+     * Prepare the Configuration for the Request like 
+     */
+	private RequestConfig prepareRequestConfig() {
+		RequestConfig requestConfig = RequestConfig.custom()
+		        .setConnectionRequestTimeout(REQUEST_TIME_OUT)
+		        .setConnectTimeout(CONNECT_TIME_OUT)
+		        .setSocketTimeout(SOCKET_TIME_OUT)
+		        .build();
+		return requestConfig;
+	}
 
     private String getContentType(String contentType){
         if(contentType != null && contentType.equals("JSON")) {
