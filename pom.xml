@@ -82,7 +82,7 @@
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                         <manifestEntries>
-                            <Rundeck-Plugin-Classnames>com.dtolabs.rundeck.plugin.http_notifications.HttpNotificationsPlugin</Rundeck-Plugin-Classnames>
+                            <Rundeck-Plugin-Classnames>com.rundeck.nvalenzuela.httpNotifications.HttpNotificationsPlugin</Rundeck-Plugin-Classnames>
                             <Rundeck-Plugin-File-Version>${project.version}</Rundeck-Plugin-File-Version>
                             <Rundeck-Plugin-Version>${rundeckPluginVersion}</Rundeck-Plugin-Version>
                             <Rundeck-Plugin-Archive>true</Rundeck-Plugin-Archive>

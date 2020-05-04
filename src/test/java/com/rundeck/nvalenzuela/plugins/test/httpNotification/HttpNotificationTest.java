@@ -1,4 +1,4 @@
-package com.dtolabs.rundeck.plugins.http_notification;
+package com.rundeck.nvalenzuela.plugins.test.httpNotification;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,13 +26,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.dtolabs.rundeck.plugin.http_notifications.HttpNotificationsPlugin;
+import com.rundeck.nvalenzuela.plugin.httpNotifications.HttpNotificationsPlugin;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({HttpNotificationsPlugin.class, HttpClients.class})
 @PowerMockIgnore({"javax.net.ssl.*", "javax.security.*", "javax.security.*"})
 public class HttpNotificationTest {
-
 	
 	
 	 @Test
@@ -102,7 +101,7 @@ public class HttpNotificationTest {
 	
 	/**/
     @Test
-    public void callPostWrongUrl1Test() throws Exception {
+    public void callPostUnknownHostExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -133,7 +132,7 @@ public class HttpNotificationTest {
 	}
     
     @Test
-    public void callPostWrongUrl2Test() throws Exception {
+    public void callPostMalformedURLExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -153,7 +152,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callPostWrongUrl3Test() throws Exception {
+    public void callPostProtocolException() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -173,7 +172,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callPostWrongUrl4Test() throws Exception {
+    public void callPostSocketTimeoutExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -193,7 +192,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callPostWrongUrl5Test() throws Exception {
+    public void callPostIOExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -214,7 +213,7 @@ public class HttpNotificationTest {
     
     /**  **/
     @Test
-    public void callGetWrongUrl1Test() throws Exception {
+    public void callGetUnknownHostExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -234,7 +233,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callGetWrongUrl2Test() throws Exception {
+    public void callGetMalformedURLExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -254,7 +253,7 @@ public class HttpNotificationTest {
     }
 
     @Test
-    public void callGetWrongUrl3Test() throws Exception {
+    public void callGetProtocolExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -274,7 +273,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callGetWrongUrl4Test() throws Exception {
+    public void callGetSocketTimeoutExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);
@@ -294,7 +293,7 @@ public class HttpNotificationTest {
     }
     
     @Test
-    public void callGetWrongUrl5Test() throws Exception {
+    public void callGetIOExceptionTest() throws Exception {
     	
     	CloseableHttpClient mockHttpClient = getMockHttpClient();
         prepareMockRespose(mockHttpClient, 200);

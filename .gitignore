@@ -5,6 +5,6 @@
 .project
 .classpath
 bin/.gitignore
-build/
+/build/
 gradlew.bat
 *iml

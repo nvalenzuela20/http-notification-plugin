@@ -1,8 +1,0 @@
-compile: open a terminal and go to where rundeck sources are located. 
-         execute the following command 'mvn install'
-
-installation: In your rundeck source, got to http-notifications-plugin/target and copy your 'rundeck-http-notification-plugin-XXX.jar' to the libext directory inside of you are rundeck instalation.
-
-deploy: Stop and restart rundeck
-        if you don't know how to start rundeck you need to open a terminar and go to where rundeck is install
-        excute the following commnand 'java -jar rundeck-launcher-XXX.jar'
