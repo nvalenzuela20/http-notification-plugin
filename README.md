@@ -11,7 +11,7 @@ This is a simple http notification plugin for rundeck.
     
     target/http-notification-0.0.1-SNAPSHOT
 
-    Note: for more information got to the following URL: <a href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a> 
+    Note: for more information, please got to the following URL: <a href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a> 
 
 ## Install
 
