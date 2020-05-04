@@ -1,4 +1,4 @@
-package com.rundeck.nvalenzuela.plugin.httpNotifications;
+package com.rundeck.nvalenzuela.plugins.httpNotifications;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

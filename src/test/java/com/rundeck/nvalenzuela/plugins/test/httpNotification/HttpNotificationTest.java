@@ -26,7 +26,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.rundeck.nvalenzuela.plugin.httpNotifications.HttpNotificationsPlugin;
+import com.rundeck.nvalenzuela.plugins.httpNotifications.HttpNotificationsPlugin;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({HttpNotificationsPlugin.class, HttpClients.class})
