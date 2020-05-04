@@ -9,7 +9,7 @@ This is a simple http notification plugin for rundeck.
     
     mvn install
     
-    target/http-notification-0.0.1-SNAPSHOT
+    target/http-notification-3.2.6-20200430
 
     Note: for more information, please got to the following URL: <a href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a> 
 
