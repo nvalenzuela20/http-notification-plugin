@@ -1,0 +1,30 @@
+- defaultTab: nodes
+  description: ''
+  executionEnabled: true
+  id: 9bf90e7f-d0a1-4741-b0cb-fee9017f48a1
+  loglevel: INFO
+  name: Notification_POST_JSON
+  nodeFilterEditable: false
+  notification:
+    onsuccess:
+      plugin:
+        configuration:
+          _debugFlg: ''
+          body: '{ "arrayColores":[{ "rojo":"#f00", "verde":"#0f0", "azul":"#00f",
+            "cyan":"#0ff",  "magenta":"#f0f",  "amarillo":"#ff0", "negro":"#000"  }  ]
+            }'
+          contentType: JSON
+          debugFlg: 'true'
+          method: POST
+          urlInput: https://webhook.site/f669fdb2-6cb7-4955-a634-0bd74140298e
+        type: http-notification
+  notifyAvgDurationThreshold: null
+  plugins:
+    ExecutionLifecycle: null
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - exec: ls
+    keepgoing: false
+    strategy: node-first
+  uuid: 9bf90e7f-d0a1-4741-b0cb-fee9017f48a1

@@ -1,0 +1,34 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description></description>
+    <executionEnabled>true</executionEnabled>
+    <id>d1efbfd9-87da-487e-8b39-d332a132a463</id>
+    <loglevel>INFO</loglevel>
+    <name>Notification_GET_JSON</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <notification>
+      <onsuccess>
+        <plugin type='http-notification'>
+          <configuration>
+            <entry key='_debugFlg' value='' />
+            <entry key='body' value='{ "arrayColores":[{ "rojo":"#f00", "verde":"#0f0", "azul":"#00f", "cyan":"#0ff",  "magenta":"#f0f",  "amarillo":"#ff0", "negro":"#000"  }  ] }' />
+            <entry key='contentType' value='JSON' />
+            <entry key='debugFlg' value='true' />
+            <entry key='method' value='GET' />
+            <entry key='urlInput' value='https://webhook.site/f669fdb2-6cb7-4955-a634-0bd74140298e' />
+          </configuration>
+        </plugin>
+      </onsuccess>
+    </notification>
+    <notifyAvgDurationThreshold />
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>ls</exec>
+      </command>
+    </sequence>
+    <uuid>d1efbfd9-87da-487e-8b39-d332a132a463</uuid>
+  </job>
+</joblist>

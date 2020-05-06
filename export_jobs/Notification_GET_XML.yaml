@@ -1,0 +1,29 @@
+- defaultTab: nodes
+  description: ''
+  executionEnabled: true
+  id: 03e52385-d107-4246-9712-86a141c8778f
+  loglevel: INFO
+  name: Notification_GET_XML
+  nodeFilterEditable: false
+  notification:
+    onsuccess:
+      plugin:
+        configuration:
+          _debugFlg: ''
+          body: <?xml version="1.0" encoding="UTF-8"?> <json>   <arrayColores>     <rojo>#f00</rojo>     <verde>#0f0</verde>     <azul>#00f</azul>     <cyan>#0ff</cyan>     <magenta>#f0f</magenta>     <amarillo>#ff0</amarillo>     <negro>#000</negro>   </arrayColores>
+            </json>
+          contentType: XML
+          debugFlg: 'true'
+          method: GET
+          urlInput: https://webhook.site/f669fdb2-6cb7-4955-a634-0bd74140298e
+        type: http-notification
+  notifyAvgDurationThreshold: null
+  plugins:
+    ExecutionLifecycle: null
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - exec: ls
+    keepgoing: false
+    strategy: node-first
+  uuid: 03e52385-d107-4246-9712-86a141c8778f

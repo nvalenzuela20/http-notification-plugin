@@ -1,0 +1,34 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description></description>
+    <executionEnabled>true</executionEnabled>
+    <id>03e52385-d107-4246-9712-86a141c8778f</id>
+    <loglevel>INFO</loglevel>
+    <name>Notification_GET_XML</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <notification>
+      <onsuccess>
+        <plugin type='http-notification'>
+          <configuration>
+            <entry key='_debugFlg' value='' />
+            <entry key='body' value='&lt;?xml version="1.0" encoding="UTF-8"?&gt; &lt;json&gt;   &lt;arrayColores&gt;     &lt;rojo&gt;#f00&lt;/rojo&gt;     &lt;verde&gt;#0f0&lt;/verde&gt;     &lt;azul&gt;#00f&lt;/azul&gt;     &lt;cyan&gt;#0ff&lt;/cyan&gt;     &lt;magenta&gt;#f0f&lt;/magenta&gt;     &lt;amarillo&gt;#ff0&lt;/amarillo&gt;     &lt;negro&gt;#000&lt;/negro&gt;   &lt;/arrayColores&gt; &lt;/json&gt;' />
+            <entry key='contentType' value='XML' />
+            <entry key='debugFlg' value='true' />
+            <entry key='method' value='GET' />
+            <entry key='urlInput' value='https://webhook.site/f669fdb2-6cb7-4955-a634-0bd74140298e' />
+          </configuration>
+        </plugin>
+      </onsuccess>
+    </notification>
+    <notifyAvgDurationThreshold />
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>ls</exec>
+      </command>
+    </sequence>
+    <uuid>03e52385-d107-4246-9712-86a141c8778f</uuid>
+  </job>
+</joblist>
