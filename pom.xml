@@ -6,7 +6,7 @@
 
     <groupId>org.test.rundeck</groupId>
     <artifactId>rundeck-http-notification-plugin</artifactId>
-    <version>3.2.6-20200430</version>
+    <version>1.0.release</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 

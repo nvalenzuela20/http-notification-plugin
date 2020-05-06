@@ -76,7 +76,13 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
         	    System.out.println("the URL is null");
     		return false;
         	
-    	} else if(urlInput != null && (!urlInput.toUpperCase().startsWith("HTTP://", 0) || urlInput.toUpperCase().startsWith("HTTPS://"))) {
+    	} else if(urlInput != null && !urlInput.toUpperCase().startsWith("HTTP", 0)) {
+    		if(debugFlg)
+        	    System.out.println("HTTP");
+    		urlInput = "https://" + urlInput;
+    	
+    	} else if(urlInput != null &&  !urlInput.toUpperCase().startsWith("HTTPS://", 0)) {
+    		System.out.println("HTTPS");
     		urlInput = "https://" + urlInput;
     	}
 
@@ -252,8 +258,8 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 
     private String getContentType(String contentType){
         if(contentType != null && contentType.equals("JSON")) {
-            return "application/xml";
-        } else if(contentType != null && contentType.equals("JSON")){
+            return "application/json";
+        } else if(contentType != null && contentType.equals("XML")){
             return "application/xml";
         } else {
             return "text/plain";
