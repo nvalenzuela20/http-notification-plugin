@@ -11,7 +11,7 @@
     <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
-        <rundeckVersion>3.2.6-20200427</rundeckVersion>
+        <rundeckVersion>3.3.14-20210827</rundeckVersion>
         <rundeckPluginVersion>1.2</rundeckPluginVersion>
         <httpClientVersion>4.5.12</httpClientVersion>
         <junitVersion>4.8.1</junitVersion>
